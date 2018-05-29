@@ -8,6 +8,7 @@ setup(
     maintainer_email='dacen.c.waters@gmail.com',
     description='Spectra plotting tool for STM',
     install_requires=['numpy', 'matplotlib'],
+    url='https://github.com/desanni/stmspectra',
     scripts=['bin/stmpspectra.py', 'bin/plot_spectra.py', 'bin/parameters.py', 'bin/spectra_analysis.py']
 )
     
