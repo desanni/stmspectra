@@ -15,6 +15,8 @@ if __name__ == "__main__":
     parser.add_argument("--hyst", action="store_false", help="turn off hystersis correction, default is to do the correction")
     parser.add_argument("-n", "--normalize", action="store_true", help="normalize the spectra by multiplying by exp(-2*kappa*z), you can set the value of kappa with --k")
     parser.add_argument("-k", "--kappa", default=1.0, type=float, help="value of kappa [Ang^-1] in normalization, default value is 1.0 Ang^-1, [type=float]")
+    parser.add_argument("-A", "--Average", action="store_true", help="Average all the input spectra together, input numbers for something")
+    parser.add_argument("-s", "--split", default = 0, type=int, nargs='+', help="This flag can be used to split the input file list into sets of spectra that you want to average together. You can input as many integers here as necessary, each interger corresponds to the ith spectra starting a new set of averaged spectra")
     parser.add_argument("-av", "--abs_value", action="store_false", help="by default, stmspectra -I plots the absolute value of the current, use this fl to turn it off and plot the real value (log scale will automatically turn off)")
     parser.add_argument("-fs", "--fontsize", default=20.0, type=float, help="fontsize for plots, [type=float]")
     parser.add_argument("--figsize", type=float, nargs = 2, help="figure size for plots, [type=tuples]")
@@ -38,7 +40,7 @@ if __name__ == "__main__":
 
     #If all arguments = False, then plot the conductance
 
-    if args.ramp is False and args.current is False:
+    if args.ramp is False and args.current is False and args.Average is False:
 
         if args.figsize is None:
             figsize = (10,8)
@@ -62,7 +64,7 @@ if __name__ == "__main__":
         plt.figure(figsize = figsize)
         plot_spectra.conductance_plot(args.files, labels = args.labels, average = args.average, hyst = args.hyst, normalize = args.normalize, kappa = args.kappa, fontsize = args.fontsize, linewidth = args.linewidth, logscale = args.logscale, grid = args.grid, xlim = args.xlim, ylim = args.ylim, legend = args.legend, xlabel = xlabel, ylabel = ylabel)
 
-    elif args.current is True:
+    elif args.current is True and args.Average is False:
 
         
         if args.figsize is None:
@@ -95,6 +97,46 @@ if __name__ == "__main__":
             figsize = (args.figsize[0], args.figsize[1])
 
         plot_spectra.show_ramp(args.files, labels = args.labels, figsize = figsize,fontsize = args.fontsize, linewidth = args.linewidth, grid = args.grid)
+
+    elif args.Average is True:
+
+        if args.split == 0:
+            file_list = [args.files]
+        else:
+            file_list = []
+            for i in range(len(args.split)+1):
+                if i == 0:
+                    file_list.append(args.files[0:args.split[i]-1])
+                elif i == len(args.split):
+                    file_list.append(args.files[args.split[i-1]-1:len(args.files)])
+                else:
+                    file_list.append(args.files[args.split[i-1]:args.split[i]])
+                                    
+        if args.figsize is None:
+            figsize = (10,8)
+        else:
+            figsize = (args.figsize[0], args.figsize[1])
+
+        if args.xlabel is None:
+            xlabel = None
+        else:
+            xlabel = ''
+            for text in args.xlabel:
+                xlabel += text
+
+        if args.ylabel is None:
+            ylabel = None
+        else:
+            ylabel = ''
+            for text in args.xlabel:
+                ylabel += text
+
+        plt.figure(figsize = figsize)
+        if args.current is False:
+            plot_spectra.average_conductance_plot(file_list, labels = args.labels, average = True, hyst = args.hyst, normalize = args.normalize, kappa = args.kappa, fontsize = args.fontsize, linewidth = args.linewidth, logscale = args.logscale, grid = args.grid, xlim = args.xlim, ylim = args.ylim, legend = args.legend, xlabel = xlabel, ylabel = ylabel)
+        elif args.current is True:
+            plot_spectra.average_current_plot(file_list, labels = args.labels, abs_value = args.abs_value, average = True, hyst = args.hyst, normalize = args.normalize, kappa = args.kappa, fontsize = args.fontsize, linewidth = args.linewidth, logscale = args.logscale, grid = args.grid, xlim = args.xlim, ylim = args.ylim, legend = args.legend, xlabel = xlabel, ylabel = ylabel)
+
 
     plt.tight_layout()
 
