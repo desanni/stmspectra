@@ -114,6 +114,7 @@ class spectra:
                     dIdV_temp = self.data[j:k, 4]                
                 if V_temp[1] < V_temp[0]:
                     #if going from negative to positive, flip the array to do the averageing correctly
+                    V_temp = V_temp[::-1]
                     I_temp = I_temp[::-1]
                     dIdV_temp = dIdV_temp[::-1]
 
@@ -123,6 +124,7 @@ class spectra:
             # divide by the number of passes at the end to finish averaging
             self.I = I/n/ current_conv
             self.dIdV = dIdV/n / current_conv
+            self.V = V_temp
         else:
             print 'Only one spectra taken, no averaging possible'
 
